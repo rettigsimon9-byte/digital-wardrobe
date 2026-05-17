@@ -41,23 +41,29 @@ export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: 'Nicht angemeldet' }, { status: 401 });
 
-  const body = await request.json();
+  try {
+    const body = await request.json();
 
-  const item = await prisma.clothingItem.create({
-    data: {
-      userId: session.user.id,
-      name: body.name,
-      category: body.category,
-      colors: JSON.stringify(body.colors),
-      colorHex: JSON.stringify(body.colorHex),
-      style: JSON.stringify(body.style),
-      season: JSON.stringify(body.season),
-      description: body.description,
-      tags: JSON.stringify(body.tags),
-      imageData: body.imageData,
-      thumbnail: body.thumbnail,
-    },
-  });
+    const item = await prisma.clothingItem.create({
+      data: {
+        userId: session.user.id,
+        name: body.name ?? '',
+        category: body.category ?? 'tops',
+        colors: JSON.stringify(body.colors ?? []),
+        colorHex: JSON.stringify(body.colorHex ?? []),
+        style: JSON.stringify(body.style ?? []),
+        season: JSON.stringify(body.season ?? []),
+        description: body.description ?? '',
+        tags: JSON.stringify(body.tags ?? []),
+        imageData: body.imageData ?? '',
+        thumbnail: body.thumbnail ?? '',
+      },
+    });
 
-  return NextResponse.json(parseItem(item));
+    return NextResponse.json(parseItem(item));
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('POST /api/clothing error:', msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }
