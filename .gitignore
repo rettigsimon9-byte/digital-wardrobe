@@ -18,6 +18,9 @@ prisma/*.db-journal
 .DS_Store
 Thumbs.db
 
+# TypeScript
+tsconfig.tsbuildinfo
+
 # Logs
 *.log
 npm-debug.log*
