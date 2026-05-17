@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  clothing ClothingItem[]
+  outfits  Outfit[]
+}
+
+model ClothingItem {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  category    String
+  colors      String
+  colorHex    String
+  style       String
+  season      String
+  description String
+  tags        String
+  imageData   String
+  thumbnail   String
+  createdAt   DateTime @default(now())
+}
+
+model Outfit {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemIds     String
+  name        String
+  description String
+  occasion    String
+  colorScheme String
+  stylingTip  String
+  createdAt   DateTime @default(now())
+}
