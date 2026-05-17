@@ -3,6 +3,11 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 
+// NextAuth reads NEXTAUTH_SECRET directly from process.env — set it if missing
+if (!process.env.NEXTAUTH_SECRET) {
+  process.env.NEXTAUTH_SECRET = 'wardrobe-super-secret-key-2024';
+}
+
 // On Railway, always use the public domain (overrides any stale localhost value)
 if (process.env.RAILWAY_PUBLIC_DOMAIN) {
   process.env.NEXTAUTH_URL = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
