@@ -70,14 +70,24 @@ export default function UploadPage() {
     if (!analysis?.imageData) return;
     setState('saving');
 
-    const res = await fetch('/api/clothing', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(analysis),
-    });
+    try {
+      const res = await fetch('/api/clothing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(analysis),
+      });
 
-    if (res.ok) router.push('/');
-    else setState('error');
+      if (res.ok) {
+        router.push('/');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(`Speichern fehlgeschlagen (${res.status}): ${data.error ?? 'Unbekannter Fehler'}`);
+        setState('done');
+      }
+    } catch (e) {
+      setError(`Netzwerkfehler: ${e instanceof Error ? e.message : String(e)}`);
+      setState('done');
+    }
   };
 
   const reset = () => {
@@ -192,6 +202,12 @@ export default function UploadPage() {
               )}
             </div>
           </div>
+
+          {error && (
+            <div className="flex items-center gap-2 text-red-500 text-sm bg-red-50 rounded-2xl px-4 py-3">
+              <AlertCircle size={16} className="flex-shrink-0" /><span>{error}</span>
+            </div>
+          )}
 
           <div className="flex gap-3">
             <button onClick={reset} disabled={state === 'saving'} className="flex-1 py-3.5 bg-white text-gray-700 rounded-2xl font-medium text-sm shadow-sm hover:bg-gray-50 transition-colors disabled:opacity-50">
