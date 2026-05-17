@@ -3,8 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 
-// Railway auto-provides RAILWAY_PUBLIC_DOMAIN; set NEXTAUTH_URL if missing
-if (!process.env.NEXTAUTH_URL && process.env.RAILWAY_PUBLIC_DOMAIN) {
+// On Railway, always use the public domain (overrides any stale localhost value)
+if (process.env.RAILWAY_PUBLIC_DOMAIN) {
   process.env.NEXTAUTH_URL = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
 }
 
