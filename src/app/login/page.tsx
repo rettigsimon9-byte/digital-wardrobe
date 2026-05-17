@@ -2,12 +2,10 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, ShirtIcon } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,8 +26,7 @@ export default function LoginPage() {
       setError('E-Mail oder Passwort ist falsch.');
       setLoading(false);
     } else {
-      router.push('/');
-      router.refresh();
+      window.location.href = '/';
     }
   };
 
