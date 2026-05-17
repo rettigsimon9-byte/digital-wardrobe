@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET ?? 'wardrobe-super-secret-key-2024',
+  secret: 'wardrobe-super-secret-key-2024',
   providers: [
     CredentialsProvider({
       name: 'credentials',
