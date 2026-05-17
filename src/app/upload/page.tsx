@@ -110,7 +110,7 @@ export default function UploadPage() {
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
         >
-          <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }} />
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }} />
           <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <ImagePlus size={28} className="text-indigo-600" />
           </div>
