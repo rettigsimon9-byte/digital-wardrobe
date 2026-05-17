@@ -3,8 +3,13 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 
+// Railway auto-provides RAILWAY_PUBLIC_DOMAIN; set NEXTAUTH_URL if missing
+if (!process.env.NEXTAUTH_URL && process.env.RAILWAY_PUBLIC_DOMAIN) {
+  process.env.NEXTAUTH_URL = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+}
+
 export const authOptions: NextAuthOptions = {
-  secret: 'wardrobe-super-secret-key-2024',
+  secret: process.env.NEXTAUTH_SECRET ?? 'wardrobe-super-secret-key-2024',
   providers: [
     CredentialsProvider({
       name: 'credentials',

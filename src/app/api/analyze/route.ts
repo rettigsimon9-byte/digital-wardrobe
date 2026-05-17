@@ -52,7 +52,8 @@ export async function POST(request: NextRequest) {
     const analysis = JSON.parse(jsonMatch[0]);
     return NextResponse.json(analysis);
   } catch (error) {
-    console.error('Analyze error:', error);
-    return NextResponse.json({ error: 'Analyse fehlgeschlagen' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Analyze error:', msg);
+    return NextResponse.json({ error: 'Analyse fehlgeschlagen', detail: msg }, { status: 500 });
   }
 }
