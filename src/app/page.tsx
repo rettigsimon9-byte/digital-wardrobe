@@ -4,13 +4,47 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Plus, ShirtIcon, LogOut } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { ClothingItem, ClothingCategory } from '@/types';
 import { CATEGORY_LABELS, CATEGORY_ICONS, SUBCATEGORIES } from '@/types';
 import ClothingCard from '@/components/ClothingCard';
 
+const STORAGE_KEY = 'digitalWardrobe_order';
+
 const ALL_CATEGORIES: (ClothingCategory | 'all')[] = [
   'all', 'tops', 'bottoms', 'dresses', 'outerwear', 'shoes', 'accessories',
 ];
+
+function SortableCard({ item, onDelete }: { item: ClothingItem; onDelete: (id: string) => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: isDragging ? 'relative' as const : undefined,
+    zIndex: isDragging ? 10 : undefined,
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <ClothingCard item={item} onDelete={onDelete} />
+    </div>
+  );
+}
 
 export default function WardrobePage() {
   const { data: session } = useSession();
@@ -19,16 +53,25 @@ export default function WardrobePage() {
   const [subcategoryFilter, setSubcategoryFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  );
+
   useEffect(() => {
     fetch('/api/clothing')
       .then((r) => r.json())
-      .then((data) => { setItems(data); setLoading(false); });
+      .then((data: ClothingItem[]) => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const orderIds: string[] = JSON.parse(saved);
+          const orderMap = new Map(orderIds.map((id, i) => [id, i]));
+          data.sort((a, b) => (orderMap.get(a.id) ?? Infinity) - (orderMap.get(b.id) ?? Infinity));
+        }
+        setItems(data);
+        setLoading(false);
+      });
   }, []);
-
-  const handleDelete = async (id: string) => {
-    await fetch(`/api/clothing/${id}`, { method: 'DELETE' });
-    setItems((prev) => prev.filter((i) => i.id !== id));
-  };
 
   const handleCategoryChange = (cat: ClothingCategory | 'all') => {
     setFilter(cat);
@@ -40,6 +83,30 @@ export default function WardrobePage() {
     if (subcategoryFilter && i.subcategory !== subcategoryFilter) return false;
     return true;
   });
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIdx = filtered.findIndex((i) => i.id === active.id);
+    const newIdx = filtered.findIndex((i) => i.id === over.id);
+    const newFiltered = arrayMove(filtered, oldIdx, newIdx);
+
+    // Reconstruct full items array preserving relative order of filtered items
+    const newItems = [...items];
+    const filteredIndices = filtered.map((fi) => items.findIndex((i) => i.id === fi.id));
+    filteredIndices.forEach((fullIdx, i) => {
+      newItems[fullIdx] = newFiltered[i];
+    });
+
+    setItems(newItems);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems.map((i) => i.id)));
+  };
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/clothing/${id}`, { method: 'DELETE' });
+    setItems((prev) => prev.filter((i) => i.id !== id));
+  };
 
   return (
     <div className="min-h-screen">
@@ -143,11 +210,15 @@ export default function WardrobePage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {filtered.map((item) => (
-              <ClothingCard key={item.id} item={item} onDelete={handleDelete} />
-            ))}
-          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={filtered.map((i) => i.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {filtered.map((item) => (
+                  <SortableCard key={item.id} item={item} onDelete={handleDelete} />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>

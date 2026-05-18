@@ -96,3 +96,42 @@ export const OCCASION_ICONS: Record<Occasion, string> = {
   date: '💫',
   travel: '✈️',
 };
+
+export interface SubOccasion {
+  value: string;
+  label: string;
+  icon: string;
+}
+
+export const SUB_OCCASIONS: Record<Occasion, SubOccasion[]> = {
+  work: [
+    { value: 'seriös', label: 'Seriös', icon: '👔' },
+    { value: 'smart_casual', label: 'Smart Casual', icon: '🧥' },
+    { value: 'kreativ', label: 'Kreativ', icon: '🎨' },
+  ],
+  casual: [
+    { value: 'lässig', label: 'Lässig', icon: '😎' },
+    { value: 'wochenende', label: 'Wochenende', icon: '🌤️' },
+    { value: 'outdoor', label: 'Outdoor', icon: '🌿' },
+  ],
+  evening: [
+    { value: 'elegant', label: 'Elegant', icon: '✨' },
+    { value: 'party', label: 'Party', icon: '🎉' },
+    { value: 'dinner', label: 'Dinner', icon: '🍷' },
+  ],
+  sport: [
+    { value: 'fitness', label: 'Fitness', icon: '💪' },
+    { value: 'outdoor_sport', label: 'Outdoor Sport', icon: '🏔️' },
+    { value: 'yoga', label: 'Yoga', icon: '🧘' },
+  ],
+  date: [
+    { value: 'romantisch', label: 'Romantisch', icon: '💕' },
+    { value: 'leger', label: 'Leger', icon: '☕' },
+    { value: 'schick', label: 'Schick', icon: '💎' },
+  ],
+  travel: [
+    { value: 'komfort', label: 'Komfort', icon: '🛫' },
+    { value: 'city', label: 'City Trip', icon: '🏙️' },
+    { value: 'strand', label: 'Strandurlaub', icon: '🏖️' },
+  ],
+};
