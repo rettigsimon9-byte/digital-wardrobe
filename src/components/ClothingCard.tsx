@@ -21,7 +21,7 @@ export default function ClothingCard({ item, onDelete }: Props) {
 
       {onDelete && (
         <button
-          onClick={() => onDelete(item.id)}
+          onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
           className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-50 hover:text-red-500 text-gray-400"
           aria-label="Löschen"
         >
