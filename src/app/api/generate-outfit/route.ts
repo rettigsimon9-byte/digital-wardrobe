@@ -5,106 +5,59 @@ import type { ClothingItem } from '@/types';
 const client = new Anthropic();
 
 const OCCASION_RULES: Record<string, string> = {
-  // Arbeit
   'Seriös': `
 PFLICHT: Professionelle, bürogeeignete Kleidung für ein konservatives Arbeitsumfeld.
 ERLAUBT: Blazer, Anzughosen, Chinos, Blusen, Hemden, Kleider (midi/maxi), elegante Röcke (midi), Pumps, Loafer, Stiefeletten.
-VERBOTEN: Leggings, Jogginghosen, Shorts, Miniröcke (unter Knie), Trägerlose Tops, Spaghetti-Tops, Crop Tops, Tank Tops, Sportschuhe, Sneaker (außer sehr clean/minimalistisch), Hoodie, Bomberjacke, Strandkleidung, zu enge oder transparente Teile.`,
+VERBOTEN: Leggings, Jogginghosen, Shorts, Miniröcke (unter Knie), Trägerlose Tops, Spaghetti-Tops, Crop Tops, Tank Tops, Sportschuhe, Sneaker (außer sehr clean/minimalistisch), Hoodie, Bomberjacke, Strandkleidung.`,
 
   'Smart Casual': `
-PFLICHT: Gepflegt und stilbewusst, aber nicht übermäßig formal. Modernes Büro oder Business-Casual.
-ERLAUBT: Chinos, dunkle Jeans (ohne Löcher), Blusen, Hemden, Strickpullover, Blazer, Loafer, Sneaker (clean/minimalistisch), Stiefeletten.
-VERBOTEN: Leggings, Jogginghosen, Shorts, Crop Tops, Tank Tops, Sportschuhe (Laufschuhe), Hoodie, sehr kurze Röcke, zerrissene Kleidung.`,
+PFLICHT: Gepflegt und stilbewusst, aber nicht übermäßig formal.
+ERLAUBT: Chinos, dunkle Jeans (ohne Löcher), Blusen, Hemden, Strickpullover, Blazer, Loafer, Sneaker (clean), Stiefeletten.
+VERBOTEN: Leggings, Jogginghosen, Shorts, Crop Tops, Tank Tops, Sportschuhe, Hoodie, sehr kurze Röcke.`,
 
   'Kreativ': `
-PFLICHT: Ausdrucksstark und individuell – kreatives Arbeitsumfeld (Design, Medien, Kunst).
-ERLAUBT: Trendige Kombinationen, interessante Muster, Statement-Pieces, Sneaker, Jeansjacke, Blazer mit Charakter.
-VERBOTEN: Leggings als Hose, Jogginghosen, Sportkleidung, sehr zerrissene oder verschmutzte Kleidung.`,
+PFLICHT: Ausdrucksstark und individuell – kreatives Arbeitsumfeld.
+ERLAUBT: Trendige Kombinationen, Statement-Pieces, Sneaker, Jeansjacke, Blazer.
+VERBOTEN: Leggings als Hose, Jogginghosen, Sportkleidung.`,
 
-  // Casual
-  'Lässig': `
-PFLICHT: Entspannt und alltagstauglich. Komfort steht im Vordergrund.
-ERLAUBT: Jeans, T-Shirts, Pullover, Sneaker, einfache Kleider.
-VERBOTEN: Sportkleidung (Leggings, Jogginghosen) außer explizit als Style-Statement, formelle Businesskleidung.`,
+  'Lässig': `PFLICHT: Entspannt und alltagstauglich. VERBOTEN: Sportkleidung (außer als Style-Statement), formelle Businesskleidung.`,
+  'Wochenende': `PFLICHT: Bequem und frisch. ERLAUBT: Jeans, T-Shirts, Pullover, Sneaker, leichte Kleider.`,
+  'Outdoor': `PFLICHT: Praktisch und wetterfest. VERBOTEN: Elegante Schuhe, sehr empfindliche Materialien.`,
 
-  'Wochenende': `
-PFLICHT: Bequem und frisch für Freizeitaktivitäten. Entspannt aber gepflegt.
-ERLAUBT: Jeans, Chinos, T-Shirts, Pullover, Sneaker, Stiefel, leichte Kleider.`,
-
-  'Outdoor': `
-PFLICHT: Praktisch und wetterfest für Outdoor-Aktivitäten.
-ERLAUBT: Praktische Hosen, Funktionsjacken, Stiefel, robuste Schuhe, Layering-Pieces.
-VERBOTEN: Elegante Schuhe (Pumps, Loafer ohne Profil), sehr empfindliche Materialien.`,
-
-  // Abend
   'Elegant': `
 PFLICHT: Festlich und stilvoll – Theater, Gala, formelles Dinner.
-ERLAUBT: Abendkleider, elegante Midi/Maxi-Kleider, Blazer, Pumps, Stiefeletten mit Absatz, edle Accessoires.
-VERBOTEN: Sneaker, Sportkleidung, zu lässige Jeans, Hoodies, Crop Tops im Freizeitstil.`,
+ERLAUBT: Abendkleider, elegante Kleider, Blazer, Pumps, edle Accessoires.
+VERBOTEN: Sneaker, Sportkleidung, Hoodies, lässige Jeans.`,
 
-  'Party': `
-PFLICHT: Trendig, ausdrucksstark und festlich für eine Party oder Feier.
-ERLAUBT: Kurze Kleider, trendige Outfits, Sneaker (wenn zum Look passend), Statement-Pieces, glänzende Stoffe.
-VERBOTEN: Sportkleidung, Jogginghosen, reine Alltagskleidung ohne Aufwertung.`,
+  'Party': `PFLICHT: Trendig und festlich. ERLAUBT: Kurze Kleider, Statement-Pieces. VERBOTEN: Sportkleidung, Jogginghosen.`,
+  'Dinner': `PFLICHT: Gepflegt für Restaurant-Dinner. VERBOTEN: Sportkleidung, Leggings, sehr lässige T-Shirts.`,
 
-  'Dinner': `
-PFLICHT: Gepflegt und angemessen für ein Restaurant-Dinner. Stilbewusst ohne übertrieben formal zu sein.
-ERLAUBT: Kleider, elegante Hosen, Blusen, Stiefeletten, Pumps, Loafer.
-VERBOTEN: Sportkleidung, Leggings, Sneaker (außer sehr clean), zu lässige T-Shirts.`,
+  'Fitness': `PFLICHT: Funktionale Sportkleidung. ERLAUBT: Leggings, Sporttops, Sportschuhe. VERBOTEN: Jeans, Kleider, elegante Schuhe.`,
+  'Outdoor Sport': `PFLICHT: Wetterfeste Sportkleidung. VERBOTEN: Elegante Kleidung, Jeans, Kleider.`,
+  'Yoga': `PFLICHT: Dehnbare Kleidung. ERLAUBT: Leggings, Sporttops. VERBOTEN: Enge Jeans, Schuhe (kein Schuhpaar auswählen).`,
 
-  // Sport
-  'Fitness': `
-PFLICHT: Funktionale Sportkleidung für das Fitnessstudio.
-ERLAUBT: Leggings, Sporttops, Tank Tops, Sportschuhe, Jogginghosen.
-VERBOTEN: Jeans, Kleider, Blazer, elegante Schuhe, Baumwollhosen (unpraktisch beim Sport).`,
+  'Romantisch': `PFLICHT: Weiblich und romantisch. ERLAUBT: Kleider, feminine Blusen, Röcke, Pumps. VERBOTEN: Sportkleidung.`,
+  'Leger': `PFLICHT: Entspannt aber attraktiv. ERLAUBT: Jeans, T-Shirts, Sneaker. VERBOTEN: Sportkleidung, Businesskleidung.`,
+  'Schick': `PFLICHT: Gepflegt und stylisch. ERLAUBT: Kleider, elegante Hosen, Blazer. VERBOTEN: Sportkleidung, Leggings.`,
 
-  'Outdoor Sport': `
-PFLICHT: Wetterfeste, funktionale Sportkleidung für Outdoor-Aktivitäten.
-ERLAUBT: Funktionshosen, Laufjacken, Sportschuhe (mit Profil), Layering-Pieces.
-VERBOTEN: Elegante Kleidung, Jeans, Kleider, empfindliche Materialien.`,
-
-  'Yoga': `
-PFLICHT: Bequeme, dehnbare Kleidung für Yoga oder Pilates.
-ERLAUBT: Leggings, Sporttops, weite Hosen, Tanktops, flexible Materialien.
-VERBOTEN: Enge Jeans, Kleider, Schuhe (Yoga wird barfuß gemacht – keine Schuhe auswählen).`,
-
-  // Date
-  'Romantisch': `
-PFLICHT: Weiblich, romantisch und einladend – perfekt für ein Date.
-ERLAUBT: Kleider, feminine Blusen, schöne Röcke, Stiefeletten, Pumps, zarte Accessoires.
-VERBOTEN: Reine Sportkleidung, zu lässige Alltagskleidung, Arbeitskleidung.`,
-
-  'Leger': `
-PFLICHT: Entspannt aber attraktiv – Coffee Date oder Spaziergang.
-ERLAUBT: Jeans, T-Shirts, Pullover, Sneaker, lässige Kleider, Jeansjacke.
-VERBOTEN: Sportkleidung, Leggings als Hose, zu formelle Businesskleidung.`,
-
-  'Schick': `
-PFLICHT: Gepflegt und stylisch – beeindruckend ohne zu overdressed zu wirken.
-ERLAUBT: Kleider, schöne Hosen, elegante Tops, Stiefeletten, Pumps, Blazer.
-VERBOTEN: Sportkleidung, Leggings, reine Freizeitkleidung.`,
-
-  // Reise
-  'Komfort': `
-PFLICHT: Reisebequem – lange Flüge oder Zugreisen. Komfort hat Priorität.
-ERLAUBT: Bequeme Hosen, Pullover, Sneaker, Strickjacken, Leggings (als Reisekleidung akzeptabel).
-VERBOTEN: Unbequeme Schuhe (Pumps mit hohem Absatz), sehr empfindliche oder leicht knitterende Materialien.`,
-
-  'City Trip': `
-PFLICHT: Stylisch und praktisch für einen Städtetrip. Viel Laufen, aber trotzdem gut aussehen.
-ERLAUBT: Jeans, Chinos, T-Shirts, Pullover, Sneaker, bequeme Stiefel, leichte Jacken.
-VERBOTEN: High Heels (unpraktisch), empfindliche Materialien, zu formelle Kleidung.`,
-
-  'Strandurlaub': `
-PFLICHT: Sommer- und strandbewusst. Leicht, luftig, sonnentauglich.
-ERLAUBT: Sommerkleider, Shorts, Sandalen, leichte Tops, Strandaccessoires.
-VERBOTEN: Schwere Winterkleidung, Stiefel, formelle Businesskleidung.`,
+  'Komfort': `PFLICHT: Reisebequem. ERLAUBT: Bequeme Hosen, Pullover, Sneaker, Leggings (als Reisekleidung akzeptabel).`,
+  'City Trip': `PFLICHT: Stylisch und praktisch. ERLAUBT: Jeans, T-Shirts, Sneaker, bequeme Stiefel. VERBOTEN: High Heels, formelle Kleidung.`,
+  'Strandurlaub': `PFLICHT: Leicht und luftig. ERLAUBT: Sommerkleider, Shorts, Sandalen. VERBOTEN: Winterkleidung, formelle Kleidung.`,
 };
 
 export async function POST(request: NextRequest) {
   try {
-    const { items, occasion, subOccasion }: { items: ClothingItem[]; occasion: string; subOccasion?: string } =
-      await request.json();
+    const {
+      items,
+      occasion,
+      subOccasion,
+      previousCombinations = [],
+    }: {
+      items: ClothingItem[];
+      occasion: string;
+      subOccasion?: string;
+      previousCombinations?: string[][];
+    } = await request.json();
 
     if (items.length < 2) {
       return NextResponse.json(
@@ -113,7 +66,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const occasionRules = subOccasion ? OCCASION_RULES[subOccasion] : '';
+    const occasionRules = subOccasion ? OCCASION_RULES[subOccasion] ?? '' : '';
     const fullOccasion = subOccasion ? `${occasion} – ${subOccasion}` : occasion;
 
     const itemList = items
@@ -123,35 +76,42 @@ export async function POST(request: NextRequest) {
       )
       .join('\n');
 
+    const avoidHint =
+      previousCombinations.length > 0
+        ? `\nBEREITS GEZEIGTE KOMBINATIONEN (diese Item-ID-Gruppen nicht wiederholen):\n${previousCombinations.map((c) => c.join(', ')).join('\n')}`
+        : '';
+
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [
         {
           role: 'user',
-          content: `Du bist ein professioneller Modeberater mit strengem Stilbewusstsein. Erstelle ein passendes Outfit für den angegebenen Anlass.
+          content: `Du bist ein professioneller Modeberater. Erstelle bis zu 3 verschiedene, harmonische Outfits für den angegebenen Anlass. Jedes Outfit muss eine andere Kombination von Kleidungsstücken verwenden.
 
 Verfügbare Kleidungsstücke:
 ${itemList}
 
 Anlass: ${fullOccasion}
-${occasionRules ? `\nSTRENGE ANLASS-REGELN (UNBEDINGT EINHALTEN):${occasionRules}` : ''}
+${occasionRules ? `\nSTRENGE ANLASS-REGELN (UNBEDINGT EINHALTEN):${occasionRules}` : ''}${avoidHint}
 
-Allgemeine Regeln:
-- Wähle maximal: 1 Oberteil (tops), 1 Hose/Rock (bottoms) ODER 1 Kleid (dresses), 1 Jacke (outerwear, optional), 1 Schuhpaar (shoes, optional), 1 Accessoire (accessories, optional)
-- Farben müssen harmonieren (komplementär, analog oder monochrom)
+Allgemeine Regeln pro Outfit:
+- Max: 1 Oberteil (tops), 1 Hose/Rock (bottoms) ODER 1 Kleid (dresses), 1 Jacke (outerwear, optional), 1 Schuhpaar (shoes, optional), 1 Accessoire (accessories, optional)
+- Farben müssen harmonieren
 - Stil muss konsistent und für den Anlass passend sein
-- Wenn kein passendes Kleidungsstück für den Anlass vorhanden ist, wähle das am besten geeignete und weise darauf hin
-- WICHTIG: Überprüfe jedes gewählte Stück einzeln gegen die Anlass-Regeln bevor du es auswählst
+- Jedes der 3 Outfits soll einen anderen Look/eine andere Stimmung haben
+- Wenn nicht genug verschiedene Kleidungsstücke für 3 Outfits vorhanden sind, erstelle so viele wie möglich
 
-Antworte NUR mit diesem JSON (kein anderer Text):
-{
-  "itemIds": ["exakte-id-1", "exakte-id-2"],
-  "name": "kreativer Outfit-Name auf Deutsch",
-  "description": "2-3 Sätze auf Deutsch warum diese Kombination perfekt zum Anlass passt",
-  "colorScheme": "Farbschema-Beschreibung auf Deutsch",
-  "stylingTip": "Ein konkreter Styling-Tipp auf Deutsch passend zum Anlass"
-}`,
+Antworte NUR mit einem JSON-Array (kein anderer Text, keine Erklärungen):
+[
+  {
+    "itemIds": ["id1", "id2"],
+    "name": "kreativer Outfit-Name auf Deutsch",
+    "description": "2 Sätze warum diese Kombination zum Anlass passt",
+    "colorScheme": "Farbschema auf Deutsch",
+    "stylingTip": "Ein Styling-Tipp auf Deutsch"
+  }
+]`,
         },
       ],
     });
@@ -159,19 +119,20 @@ Antworte NUR mit diesem JSON (kein anderer Text):
     const content = response.content[0];
     if (content.type !== 'text') throw new Error('Unexpected response type');
 
-    const jsonMatch = content.text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON in response');
+    const jsonMatch = content.text.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('No JSON array in response');
 
-    const outfit = JSON.parse(jsonMatch[0]);
+    const outfits: { itemIds: string[]; name: string; description: string; colorScheme: string; stylingTip: string }[] =
+      JSON.parse(jsonMatch[0]);
 
-    const validIds = items.map((i) => i.id);
-    outfit.itemIds = outfit.itemIds.filter((id: string) => validIds.includes(id));
+    const validIds = new Set(items.map((i) => i.id));
+    const cleaned = outfits
+      .map((o) => ({ ...o, itemIds: o.itemIds.filter((id) => validIds.has(id)) }))
+      .filter((o) => o.itemIds.length > 0);
 
-    if (outfit.itemIds.length === 0) {
-      throw new Error('No valid item IDs returned');
-    }
+    if (cleaned.length === 0) throw new Error('No valid outfits returned');
 
-    return NextResponse.json(outfit);
+    return NextResponse.json(cleaned);
   } catch (error) {
     console.error('Generate outfit error:', error);
     return NextResponse.json({ error: 'Outfit-Generierung fehlgeschlagen' }, { status: 500 });
