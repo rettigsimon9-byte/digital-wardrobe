@@ -93,6 +93,33 @@ function DroppableCategoryChip({
   );
 }
 
+function DroppableSubcategoryChip({
+  sub,
+  isActive,
+  onClick,
+}: {
+  sub: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: `drop-sub-${sub}` });
+  return (
+    <button
+      ref={setNodeRef}
+      onClick={onClick}
+      className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all duration-150 ${
+        isActive
+          ? 'bg-indigo-100 text-indigo-700'
+          : isOver
+          ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-400 scale-105'
+          : 'bg-white text-gray-400 hover:bg-gray-50'
+      }`}
+    >
+      {sub}
+    </button>
+  );
+}
+
 export default function WardrobePage() {
   const { data: session } = useSession();
   const [items, setItems] = useState<ClothingItem[]>([]);
@@ -146,7 +173,25 @@ export default function WardrobePage() {
 
     const overId = over.id.toString();
 
-    // Drop onto a category chip → recategorize
+    // Drop onto a subcategory chip → change subcategory
+    if (overId.startsWith('drop-sub-')) {
+      const newSubcategory = overId.replace('drop-sub-', '');
+      const dragged = items.find((i) => i.id === active.id);
+      if (!dragged || dragged.subcategory === newSubcategory) return;
+
+      await fetch(`/api/clothing/${active.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subcategory: newSubcategory }),
+      });
+
+      setItems((prev) =>
+        prev.map((i) => (i.id === active.id ? { ...i, subcategory: newSubcategory } : i))
+      );
+      return;
+    }
+
+    // Drop onto a category chip → change main category
     if (overId.startsWith('drop-')) {
       const newCategory = overId.replace('drop-', '') as ClothingCategory;
       const dragged = items.find((i) => i.id === active.id);
@@ -255,15 +300,12 @@ export default function WardrobePage() {
                 Alle
               </button>
               {SUBCATEGORIES[filter].map((sub) => (
-                <button
+                <DroppableSubcategoryChip
                   key={sub}
+                  sub={sub}
+                  isActive={subcategoryFilter === sub}
                   onClick={() => setSubcategoryFilter(sub === subcategoryFilter ? null : sub)}
-                  className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    subcategoryFilter === sub ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-400 hover:bg-gray-50'
-                  }`}
-                >
-                  {sub}
-                </button>
+                />
               ))}
             </div>
           )}
