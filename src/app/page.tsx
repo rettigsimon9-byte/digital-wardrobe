@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Plus, ShirtIcon, LogOut } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
@@ -125,6 +125,7 @@ export default function WardrobePage() {
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [filter, setFilter] = useState<ClothingCategory | 'all'>('all');
   const [subcategoryFilter, setSubcategoryFilter] = useState<string | null>(null);
+  const [colorFilter, setColorFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<ClothingItem | null>(null);
@@ -152,11 +153,33 @@ export default function WardrobePage() {
   const handleCategoryChange = (cat: ClothingCategory | 'all') => {
     setFilter(cat);
     setSubcategoryFilter(null);
+    setColorFilter(null);
   };
 
-  const filtered = items.filter((i) => {
-    if (filter !== 'all' && i.category !== filter) return false;
-    if (subcategoryFilter && i.subcategory !== subcategoryFilter) return false;
+  // Items filtered by category + subcategory (before color filter) — used to derive available colors
+  const preColorFiltered = useMemo(
+    () =>
+      items.filter((i) => {
+        if (filter !== 'all' && i.category !== filter) return false;
+        if (subcategoryFilter && i.subcategory !== subcategoryFilter) return false;
+        return true;
+      }),
+    [items, filter, subcategoryFilter]
+  );
+
+  // Unique colors present in the current view
+  const availableColors = useMemo(() => {
+    const seen = new Map<string, string>(); // name → hex
+    preColorFiltered.forEach((item) => {
+      item.colors.forEach((name, i) => {
+        if (name && !seen.has(name)) seen.set(name, item.colorHex[i] ?? '#ccc');
+      });
+    });
+    return Array.from(seen.entries()).map(([name, hex]) => ({ name, hex }));
+  }, [preColorFiltered]);
+
+  const filtered = preColorFiltered.filter((i) => {
+    if (colorFilter && !i.colors.includes(colorFilter)) return false;
     return true;
   });
 
@@ -292,7 +315,7 @@ export default function WardrobePage() {
           {filter !== 'all' && (
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pt-2 pb-1">
               <button
-                onClick={() => setSubcategoryFilter(null)}
+                onClick={() => { setSubcategoryFilter(null); setColorFilter(null); }}
                 className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   subcategoryFilter === null ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-400 hover:bg-gray-50'
                 }`}
@@ -304,8 +327,40 @@ export default function WardrobePage() {
                   key={sub}
                   sub={sub}
                   isActive={subcategoryFilter === sub}
-                  onClick={() => setSubcategoryFilter(sub === subcategoryFilter ? null : sub)}
+                  onClick={() => { setSubcategoryFilter(sub === subcategoryFilter ? null : sub); setColorFilter(null); }}
                 />
+              ))}
+            </div>
+          )}
+
+          {availableColors.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pt-2 pb-1">
+              <span className="flex-shrink-0 text-xs text-gray-300 font-medium">Farbe</span>
+              <button
+                onClick={() => setColorFilter(null)}
+                className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  colorFilter === null ? 'bg-gray-200 text-gray-600' : 'bg-white text-gray-400 hover:bg-gray-50'
+                }`}
+              >
+                Alle
+              </button>
+              {availableColors.map(({ name, hex }) => (
+                <button
+                  key={name}
+                  onClick={() => setColorFilter(colorFilter === name ? null : name)}
+                  title={name}
+                  className={`flex-shrink-0 flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                    colorFilter === name
+                      ? 'bg-gray-100 text-gray-700 ring-2 ring-gray-400'
+                      : 'bg-white text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  <span
+                    className="w-4 h-4 rounded-full border border-gray-200 flex-shrink-0"
+                    style={{ backgroundColor: hex }}
+                  />
+                  {name}
+                </button>
               ))}
             </div>
           )}
