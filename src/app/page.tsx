@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Plus, ShirtIcon, LogOut } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import type { ClothingItem, ClothingCategory } from '@/types';
-import { CATEGORY_LABELS, CATEGORY_ICONS } from '@/types';
+import { CATEGORY_LABELS, CATEGORY_ICONS, SUBCATEGORIES } from '@/types';
 import ClothingCard from '@/components/ClothingCard';
 
 const ALL_CATEGORIES: (ClothingCategory | 'all')[] = [
@@ -16,6 +16,7 @@ export default function WardrobePage() {
   const { data: session } = useSession();
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [filter, setFilter] = useState<ClothingCategory | 'all'>('all');
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +30,16 @@ export default function WardrobePage() {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const filtered = filter === 'all' ? items : items.filter((i) => i.category === filter);
+  const handleCategoryChange = (cat: ClothingCategory | 'all') => {
+    setFilter(cat);
+    setSubcategoryFilter(null);
+  };
+
+  const filtered = items.filter((i) => {
+    if (filter !== 'all' && i.category !== filter) return false;
+    if (subcategoryFilter && i.subcategory !== subcategoryFilter) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen">
@@ -62,7 +72,7 @@ export default function WardrobePage() {
           {ALL_CATEGORIES.map((cat) => (
             <button
               key={cat}
-              onClick={() => setFilter(cat)}
+              onClick={() => handleCategoryChange(cat)}
               className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 filter === cat
                   ? 'bg-indigo-600 text-white shadow-sm'
@@ -73,6 +83,34 @@ export default function WardrobePage() {
             </button>
           ))}
         </div>
+
+        {filter !== 'all' && (
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pt-2 pb-1">
+            <button
+              onClick={() => setSubcategoryFilter(null)}
+              className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                subcategoryFilter === null
+                  ? 'bg-indigo-100 text-indigo-700'
+                  : 'bg-white text-gray-400 hover:bg-gray-50'
+              }`}
+            >
+              Alle
+            </button>
+            {SUBCATEGORIES[filter].map((sub) => (
+              <button
+                key={sub}
+                onClick={() => setSubcategoryFilter(sub === subcategoryFilter ? null : sub)}
+                className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  subcategoryFilter === sub
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'bg-white text-gray-400 hover:bg-gray-50'
+                }`}
+              >
+                {sub}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="px-5 pt-2">

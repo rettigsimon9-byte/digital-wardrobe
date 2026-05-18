@@ -167,9 +167,16 @@ export default function UploadPage() {
               </div>
               <div>
                 <p className="font-semibold text-gray-900">{analysis.name}</p>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {analysis.category && `${CATEGORY_ICONS[analysis.category]} ${CATEGORY_LABELS[analysis.category]}`}
-                </p>
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                  <p className="text-sm text-gray-500">
+                    {analysis.category && `${CATEGORY_ICONS[analysis.category]} ${CATEGORY_LABELS[analysis.category]}`}
+                  </p>
+                  {analysis.subcategory && (
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-medium">
+                      {analysis.subcategory}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <div className="space-y-3 text-sm">

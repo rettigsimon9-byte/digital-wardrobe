@@ -31,6 +31,11 @@ export default function ClothingCard({ item, onDelete }: Props) {
 
       <div className="p-3">
         <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+        {item.subcategory && (
+          <span className="inline-block mt-1 px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-medium truncate max-w-full">
+            {item.subcategory}
+          </span>
+        )}
         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
           {item.colorHex.slice(0, 3).map((hex, i) => (
             <span

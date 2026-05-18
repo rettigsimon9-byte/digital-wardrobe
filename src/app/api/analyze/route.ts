@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
 {
   "name": "präziser Name des Kleidungsstücks auf Deutsch (z.B. 'Weißes Leinenhemd', 'Schwarze Skinny Jeans')",
   "category": "GENAU EINES von: tops | bottoms | dresses | outerwear | shoes | accessories",
+  "subcategory": "GENAU EINE passende Unterkategorie zur gewählten Hauptkategorie: tops→[Trägerloses Top | Spaghetti-Top | Tank Top | T-Shirt | Langarmshirt | Bluse | Hemd | Crop Top | Rollkragenpullover | Pullover | Strickpullover] | bottoms→[Jeans | Chinos | Shorts | Rock | Minirock | Maxirock | Jogginghose | Leggings | Anzughose] | dresses→[Minikleid | Midikleid | Maxikleid | Sommerkleid | Abendkleid | Wickelkleid] | outerwear→[Jeansjacke | Lederjacke | Blazer | Hoodie | Trenchcoat | Wintermantel | Cardigan | Bomberjacke | Pufferjacke] | shoes→[Sneaker | Pumps | Sandalen | Stiefel | Stiefeletten | Ballerinas | Loafer | Sportschuhe] | accessories→[Tasche | Handtasche | Rucksack | Gürtel | Schal | Mütze | Schmuck | Sonnenbrille | Hut]",
   "colors": ["Farbe1 auf Deutsch", "Farbe2 auf Deutsch"],
   "colorHex": ["#rrggbb", "#rrggbb"],
   "style": ["MINDESTENS EINES von: casual | klassisch | sportlich | elegant | streetwear | business | boho | minimalistisch"],

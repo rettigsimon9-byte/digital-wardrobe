@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 function parseItem(item: {
-  id: string; userId: string; name: string; category: string;
+  id: string; userId: string; name: string; category: string; subcategory: string;
   colors: string; colorHex: string; style: string; season: string;
   description: string; tags: string; imageData: string; thumbnail: string;
   createdAt: Date;
@@ -13,6 +13,7 @@ function parseItem(item: {
     id: item.id,
     name: item.name,
     category: item.category,
+    subcategory: item.subcategory,
     colors: JSON.parse(item.colors),
     colorHex: JSON.parse(item.colorHex),
     style: JSON.parse(item.style),
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         name: body.name ?? '',
         category: body.category ?? 'tops',
+        subcategory: body.subcategory ?? '',
         colors: JSON.stringify(body.colors ?? []),
         colorHex: JSON.stringify(body.colorHex ?? []),
         style: JSON.stringify(body.style ?? []),

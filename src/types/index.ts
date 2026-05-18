@@ -24,12 +24,39 @@ export const CATEGORY_ICONS: Record<ClothingCategory, string> = {
   accessories: '👜',
 };
 
+export const SUBCATEGORIES: Record<ClothingCategory, string[]> = {
+  tops: [
+    'Trägerloses Top', 'Spaghetti-Top', 'Tank Top', 'T-Shirt', 'Langarmshirt',
+    'Bluse', 'Hemd', 'Crop Top', 'Rollkragenpullover', 'Pullover', 'Strickpullover',
+  ],
+  bottoms: [
+    'Jeans', 'Chinos', 'Shorts', 'Rock', 'Minirock', 'Maxirock',
+    'Jogginghose', 'Leggings', 'Anzughose',
+  ],
+  dresses: [
+    'Minikleid', 'Midikleid', 'Maxikleid', 'Sommerkleid', 'Abendkleid', 'Wickelkleid',
+  ],
+  outerwear: [
+    'Jeansjacke', 'Lederjacke', 'Blazer', 'Hoodie', 'Trenchcoat',
+    'Wintermantel', 'Cardigan', 'Bomberjacke', 'Pufferjacke',
+  ],
+  shoes: [
+    'Sneaker', 'Pumps', 'Sandalen', 'Stiefel', 'Stiefeletten',
+    'Ballerinas', 'Loafer', 'Sportschuhe',
+  ],
+  accessories: [
+    'Tasche', 'Handtasche', 'Rucksack', 'Gürtel', 'Schal',
+    'Mütze', 'Schmuck', 'Sonnenbrille', 'Hut',
+  ],
+};
+
 export interface ClothingItem {
   id: string;
   imageData: string;
   thumbnail: string;
   name: string;
   category: ClothingCategory;
+  subcategory?: string;
   colors: string[];
   colorHex: string[];
   style: string[];

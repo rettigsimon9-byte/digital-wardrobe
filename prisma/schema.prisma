@@ -24,6 +24,7 @@ model ClothingItem {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name        String
   category    String
+  subcategory String   @default("")
   colors      String
   colorHex    String
   style       String
