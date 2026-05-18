@@ -92,7 +92,7 @@ export default function GeneratePage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(outfitData),
     });
-    setSavedIndices((prev) => new Set([...prev, index]));
+    setSavedIndices((prev) => { const next = new Set(prev); next.add(index); return next; });
   };
 
   if (allItems.length < 2) {
