@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Heart, Sparkles } from 'lucide-react';
+import { Heart, Sparkles, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { Outfit, ClothingItem } from '@/types';
 import { OCCASION_LABELS, OCCASION_ICONS } from '@/types';
@@ -52,12 +52,22 @@ export default function OutfitsPage() {
             <h1 className="text-2xl font-bold text-gray-900">Favoriten</h1>
             <p className="text-sm text-gray-400 mt-0.5">{outfits.length} gespeicherte Outfits</p>
           </div>
-          <Link
-            href="/generate"
-            className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-colors"
-          >
-            <Sparkles size={18} className="text-white" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/outfits/builder"
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+              title="Selbst erstellen"
+            >
+              <PlusCircle size={20} className="text-indigo-600" />
+            </Link>
+            <Link
+              href="/generate"
+              className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-colors"
+              title="KI erstellen"
+            >
+              <Sparkles size={18} className="text-white" />
+            </Link>
+          </div>
         </div>
 
         {/* Kategorie-Filter */}

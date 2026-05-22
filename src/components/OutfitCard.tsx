@@ -1,6 +1,7 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
+import Link from 'next/link';
 import type { Outfit, ClothingItem } from '@/types';
 import FlatLayCollage from './FlatLayCollage';
 
@@ -25,19 +26,25 @@ export default function OutfitCard({ outfit, items, onDelete }: Props) {
             <p className="font-semibold text-sm text-gray-900 truncate">{outfit.name}</p>
             <p className="text-xs text-indigo-600 mt-0.5">{outfit.occasion}</p>
           </div>
-          {onDelete && (
-            <button
-              onClick={() => onDelete(outfit.id)}
-              className="p-1.5 text-gray-300 hover:text-red-400 transition-colors flex-shrink-0"
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Link
+              href={`/outfits/builder?edit=${outfit.id}`}
+              className="p-1.5 text-gray-300 hover:text-indigo-500 transition-colors"
             >
-              <Trash2 size={14} />
-            </button>
-          )}
+              <Pencil size={14} />
+            </Link>
+            {onDelete && (
+              <button
+                onClick={() => onDelete(outfit.id)}
+                className="p-1.5 text-gray-300 hover:text-red-400 transition-colors"
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
+          </div>
         </div>
         <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">{outfit.colorScheme}</p>
-        <p className="text-xs text-gray-400 mt-1">
-          {outfitItems.length} Kleidungsstücke
-        </p>
+        <p className="text-xs text-gray-400 mt-1">{outfitItems.length} Kleidungsstücke</p>
       </div>
     </div>
   );

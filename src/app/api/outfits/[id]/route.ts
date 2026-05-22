@@ -3,6 +3,43 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return NextResponse.json({ error: 'Nicht angemeldet' }, { status: 401 });
+
+  const outfit = await prisma.outfit.findUnique({ where: { id: params.id } });
+  if (!outfit || outfit.userId !== session.user.id) {
+    return NextResponse.json({ error: 'Nicht gefunden' }, { status: 404 });
+  }
+
+  const body = await request.json();
+  const updated = await prisma.outfit.update({
+    where: { id: params.id },
+    data: {
+      itemIds: JSON.stringify(body.itemIds),
+      name: body.name,
+      occasion: body.occasion,
+      description: body.description ?? outfit.description,
+      colorScheme: body.colorScheme ?? outfit.colorScheme,
+      stylingTip: body.stylingTip ?? outfit.stylingTip,
+    },
+  });
+
+  return NextResponse.json({
+    id: updated.id,
+    itemIds: JSON.parse(updated.itemIds),
+    name: updated.name,
+    occasion: updated.occasion,
+    description: updated.description,
+    colorScheme: updated.colorScheme,
+    stylingTip: updated.stylingTip,
+    createdAt: updated.createdAt.getTime(),
+  });
+}
+
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: { id: string } }
