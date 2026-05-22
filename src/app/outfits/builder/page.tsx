@@ -58,7 +58,7 @@ function OutfitBuilder() {
     if (!name.trim() || selectedIds.size === 0) return;
     setSaving(true);
     const body = {
-      itemIds: [...selectedIds],
+      itemIds: Array.from(selectedIds),
       name: name.trim(),
       occasion,
       description: '',
