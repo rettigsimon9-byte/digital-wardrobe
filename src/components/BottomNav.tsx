@@ -8,7 +8,7 @@ const navItems = [
   { href: '/', label: 'Schrank', icon: ShirtIcon },
   { href: '/upload', label: 'Hinzufügen', icon: PlusCircle },
   { href: '/generate', label: 'Outfit', icon: Sparkles },
-  { href: '/outfits', label: 'Gespeichert', icon: Heart },
+  { href: '/outfits', label: 'Favoriten', icon: Heart },
 ];
 
 export default function BottomNav() {
