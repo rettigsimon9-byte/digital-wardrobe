@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
-    "start": "npx prisma db push && next start -p $PORT"
+    "postinstall": "prisma generate",
+    "build": "next build",
+    "start": "next start -p $PORT"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
