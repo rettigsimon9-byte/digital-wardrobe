@@ -2,6 +2,7 @@
 
 import { Trash2 } from 'lucide-react';
 import type { Outfit, ClothingItem } from '@/types';
+import FlatLayCollage from './FlatLayCollage';
 
 interface Props {
   outfit: Outfit;
@@ -14,32 +15,9 @@ export default function OutfitCard({ outfit, items, onDelete }: Props) {
     .map((id) => items.find((item) => item.id === id))
     .filter(Boolean) as ClothingItem[];
 
-  const displayItems = outfitItems.slice(0, 4);
-
   return (
     <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
-      <div className="grid grid-cols-2 gap-0.5 bg-gray-100">
-        {displayItems.map((item, i) => (
-          <div
-            key={item.id}
-            className={`aspect-square overflow-hidden bg-gray-50 ${
-              displayItems.length === 1 ? 'col-span-2' :
-              displayItems.length === 3 && i === 2 ? 'col-span-2' : ''
-            }`}
-          >
-            <img
-              src={item.thumbnail}
-              alt={item.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ))}
-        {displayItems.length === 0 && (
-          <div className="col-span-2 aspect-video bg-gray-100 flex items-center justify-center">
-            <span className="text-4xl">👗</span>
-          </div>
-        )}
-      </div>
+      <FlatLayCollage items={outfitItems} />
 
       <div className="p-3">
         <div className="flex items-start justify-between gap-2">
